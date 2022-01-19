@@ -1,0 +1,11 @@
+spring:
+  profiles:
+    active: local #激活环境，请勿更改，如需改变环境请通过启动参数传入
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+logging:
+  config: classpath:logback-spring.xml
+
