@@ -6,6 +6,7 @@ spring:
       discovery:
         locator:
           enabled: true
-logging:
-  config: classpath:logback-spring.xml
+          filters:
+            #- StripPrefix=1 # 转发之前去掉几层路径
+          url-expression: "'lb://'+serviceId"
 
