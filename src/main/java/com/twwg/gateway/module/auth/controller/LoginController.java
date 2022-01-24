@@ -6,6 +6,10 @@ import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.CircleCaptcha;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.crypto.digest.BCrypt;
+import com.twwg.gateway.module.auth.entity.User;
+import com.twwg.gateway.module.auth.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DefaultDataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -31,25 +35,29 @@ import java.util.Map;
 @RequestMapping("/auth/")
 public class LoginController {
 
+    @Autowired
+    UserService userService;
+
     TimedCache<String, String> captchaCache = new TimedCache<>(5000L);
 
 
     @RequestMapping("login/doLogin")
-    public String doLogin(String username, String password,String captchaToken,String captchaCode) {
-
+    public String doLogin(String username, String password, String captchaToken, String captchaCode) {
 
         String captcha = captchaCache.get(captchaToken);
-        if (captchaCode==null||captcha==null){
+        if (captchaCode == null || !captchaToken.equals(captcha)) {
+            captchaCache.remove(captchaCode);
             return "验证码校验失败";
         }
 
-        // 此处仅作模拟示例，真实项目需要从数据库中查询数据进行比对
-        if ("zhang".equals(username) && "123456".equals(password)) {
-            StpUtil.login(10001);
-            StpUtil.getRoleList();
-            return "登录成功";
+        User user = userService.getByUsername(username);
+        //BCrypt
+        if (user == null|| !BCrypt.checkpw(password,user.getPasswd())) {
+            return "登录失败";
         }
-        return "登录失败";
+
+        StpUtil.login(user.getId());
+        return "登录成功";
     }
 
     /**

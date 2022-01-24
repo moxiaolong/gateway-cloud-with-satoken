@@ -12,4 +12,12 @@ import com.twwg.gateway.module.auth.entity.User;
  * Copyright © MyCompany
 */
 public interface UserService extends BaseCustomService<User> {
+
+    /**
+     * get  by 用户名
+     *
+     * @param username 用户名
+     * @return boolean
+     */
+    User getByUsername(String username);
 }

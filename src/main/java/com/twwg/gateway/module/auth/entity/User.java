@@ -8,6 +8,7 @@ import com.twwg.gateway.base.BaseCustomEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Date;
 
@@ -35,5 +36,18 @@ public class User extends BaseCustomEntity {
     @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private Date updateTime;
 
+    /**
+     * 用户名
+     */
+    @Length(max=100, message="用户名长度应小于100")
+    @TableField()
+    private String userName;
+
+    /**
+     * 密码
+     */
+    @Length(max=100, message="密码长度应小于100")
+    @TableField()
+    private String passwd;
 
 } 

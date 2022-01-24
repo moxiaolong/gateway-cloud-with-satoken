@@ -1,5 +1,6 @@
 package com.twwg.gateway.module.auth.controller;
 
+import cn.hutool.crypto.digest.BCrypt;
 import com.diboot.core.vo.JsonResult;
 import com.diboot.core.vo.Pagination;
 import com.twwg.gateway.base.BaseCustomCrudRestController;
@@ -39,8 +40,8 @@ public class UserController extends BaseCustomCrudRestController<User> {
      * @throws Exception
      */
     @GetMapping("/list")
-    public JsonResult getViewObjectListMapping(UserDTO queryDto, Pagination pagination) throws Exception{
-    		return super.getViewObjectList(queryDto, pagination, UserListVO.class);
+    public JsonResult getViewObjectListMapping(UserDTO queryDto, Pagination pagination) throws Exception {
+        return super.getViewObjectList(queryDto, pagination, UserListVO.class);
     }
 
     /**
@@ -51,7 +52,7 @@ public class UserController extends BaseCustomCrudRestController<User> {
      * @throws Exception
      */
     @GetMapping("/{id}")
-    public JsonResult getViewObjectMapping(@PathVariable("id")Long id) throws Exception{
+    public JsonResult getViewObjectMapping(@PathVariable("id") Long id) throws Exception {
         return super.getViewObject(id, UserDetailVO.class);
     }
 
@@ -64,6 +65,7 @@ public class UserController extends BaseCustomCrudRestController<User> {
      */
     @PostMapping("/")
     public JsonResult createEntityMapping(@Valid @RequestBody User entity) throws Exception {
+        entity.setPasswd(BCrypt.hashpw(entity.getPasswd()));
         return super.createEntity(entity);
     }
 
@@ -75,7 +77,8 @@ public class UserController extends BaseCustomCrudRestController<User> {
      * @throws Exception
      */
     @PutMapping("/{id}")
-    public JsonResult updateEntityMapping(@PathVariable("id")Long id, @Valid @RequestBody User entity) throws Exception {
+    public JsonResult updateEntityMapping(@PathVariable("id") Long id, @Valid @RequestBody User entity) throws Exception {
+        entity.setPasswd(BCrypt.hashpw(entity.getPasswd()));
         return super.updateEntity(id, entity);
     }
 
@@ -87,7 +90,7 @@ public class UserController extends BaseCustomCrudRestController<User> {
      * @throws Exception
      */
     @DeleteMapping("/{id}")
-    public JsonResult deleteEntityMapping(@PathVariable("id")Long id) throws Exception {
+    public JsonResult deleteEntityMapping(@PathVariable("id") Long id) throws Exception {
         return super.deleteEntity(id);
     }
 

@@ -1,6 +1,7 @@
 package com.twwg.gateway.module.auth.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.twwg.gateway.base.BaseCustomServiceImpl;
 import com.twwg.gateway.module.auth.entity.User;
 import com.twwg.gateway.module.auth.mapper.UserMapper;
@@ -19,4 +20,10 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserServiceImpl extends BaseCustomServiceImpl<UserMapper, User> implements UserService {
 
+    @Override
+    public User getByUsername(String username) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(User::getUserName, username);
+        return this.getSingleEntity(queryWrapper);
+    }
 }

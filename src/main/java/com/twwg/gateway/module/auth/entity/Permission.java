@@ -8,6 +8,7 @@ import com.twwg.gateway.base.BaseCustomEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Date;
 
@@ -35,5 +36,19 @@ public class Permission extends BaseCustomEntity {
     @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private Date updateTime;
 
+
+    /**
+     * 权限路径
+     */
+    @Length(max = 100, message = "权限路径长度应小于100")
+    @TableField()
+    private String uri;
+
+    /**
+     * 描述
+     */
+    @Length(max = 100, message = "描述长度应小于100")
+    @TableField()
+    private String describe;
 
 } 
