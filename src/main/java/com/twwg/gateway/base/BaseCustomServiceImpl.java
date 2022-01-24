@@ -2,7 +2,6 @@ package com.twwg.gateway.base;
 
 import com.diboot.core.mapper.BaseCrudMapper;
 import com.diboot.core.service.impl.BaseServiceImpl;
-import com.example.demo.service.BaseCustomService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
