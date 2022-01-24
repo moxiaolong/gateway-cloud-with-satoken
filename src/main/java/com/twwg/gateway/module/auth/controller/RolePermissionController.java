@@ -1,15 +1,13 @@
 package com.twwg.gateway.module.auth.controller;
 
-import com.diboot.core.vo.*;
-import com.diboot.iam.annotation.BindPermission;
-import com.diboot.iam.annotation.Log;
-import com.diboot.iam.annotation.OperationCons;
-import com.example.demo.controller.BaseCustomCrudRestController;
-import com.example.demo.dto.auth.RolePermissionDTO;
-import com.example.demo.entity.auth.RolePermission;
-import com.example.demo.service.auth.RolePermissionService;
-import com.example.demo.vo.auth.RolePermissionDetailVO;
-import com.example.demo.vo.auth.RolePermissionListVO;
+import com.diboot.core.vo.JsonResult;
+import com.diboot.core.vo.Pagination;
+import com.twwg.gateway.base.BaseCustomCrudRestController;
+import com.twwg.gateway.module.auth.dto.RolePermissionDTO;
+import com.twwg.gateway.module.auth.entity.RolePermission;
+import com.twwg.gateway.module.auth.service.RolePermissionService;
+import com.twwg.gateway.module.auth.vo.RolePermissionDetailVO;
+import com.twwg.gateway.module.auth.vo.RolePermissionListVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +24,6 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/auth/rolePermission")
-@BindPermission(name = "角色权限中间表", code="AuthRolePermission")
 @Slf4j
 public class RolePermissionController extends BaseCustomCrudRestController<RolePermission> {
     @Autowired
@@ -41,8 +38,6 @@ public class RolePermissionController extends BaseCustomCrudRestController<RoleP
      * @return
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_LIST)
-    @BindPermission(name = OperationCons.LABEL_LIST, code = OperationCons.CODE_LIST)
     @GetMapping("/list")
     public JsonResult getViewObjectListMapping(RolePermissionDTO queryDto, Pagination pagination) throws Exception{
     		return super.getViewObjectList(queryDto, pagination, RolePermissionListVO.class);
@@ -55,8 +50,6 @@ public class RolePermissionController extends BaseCustomCrudRestController<RoleP
      * @return
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_DETAIL)
-    @BindPermission(name = OperationCons.LABEL_DETAIL, code = OperationCons.CODE_DETAIL)
     @GetMapping("/{id}")
     public JsonResult getViewObjectMapping(@PathVariable("id")Long id) throws Exception{
         return super.getViewObject(id, RolePermissionDetailVO.class);
@@ -69,8 +62,6 @@ public class RolePermissionController extends BaseCustomCrudRestController<RoleP
      * @return JsonResult
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_CREATE)
-    @BindPermission(name = OperationCons.LABEL_CREATE, code = OperationCons.CODE_CREATE)
     @PostMapping("/")
     public JsonResult createEntityMapping(@Valid @RequestBody RolePermission entity) throws Exception {
         return super.createEntity(entity);
@@ -83,8 +74,6 @@ public class RolePermissionController extends BaseCustomCrudRestController<RoleP
      * @return JsonResult
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_UPDATE)
-    @BindPermission(name = OperationCons.LABEL_UPDATE, code = OperationCons.CODE_UPDATE)
     @PutMapping("/{id}")
     public JsonResult updateEntityMapping(@PathVariable("id")Long id, @Valid @RequestBody RolePermission entity) throws Exception {
         return super.updateEntity(id, entity);
@@ -97,8 +86,6 @@ public class RolePermissionController extends BaseCustomCrudRestController<RoleP
      * @return
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_DELETE)
-    @BindPermission(name = OperationCons.LABEL_DELETE, code = OperationCons.CODE_DELETE)
     @DeleteMapping("/{id}")
     public JsonResult deleteEntityMapping(@PathVariable("id")Long id) throws Exception {
         return super.deleteEntity(id);

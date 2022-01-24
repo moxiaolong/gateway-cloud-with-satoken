@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.example.demo.entity.BaseCustomEntity;
+import com.twwg.gateway.base.BaseCustomEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;

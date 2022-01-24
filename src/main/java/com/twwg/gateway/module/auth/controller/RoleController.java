@@ -8,7 +8,6 @@ import com.twwg.gateway.module.auth.entity.Role;
 import com.twwg.gateway.module.auth.service.RoleService;
 import com.twwg.gateway.module.auth.vo.RoleDetailVO;
 import com.twwg.gateway.module.auth.vo.RoleListVO;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +38,6 @@ public class RoleController extends BaseCustomCrudRestController<Role> {
      * @return
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_LIST)
-    @BindPermission(name = OperationCons.LABEL_LIST, code = OperationCons.CODE_LIST)
     @GetMapping("/list")
     public JsonResult getViewObjectListMapping(RoleDTO queryDto, Pagination pagination) throws Exception{
     		return super.getViewObjectList(queryDto, pagination, RoleListVO.class);
@@ -53,8 +50,6 @@ public class RoleController extends BaseCustomCrudRestController<Role> {
      * @return
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_DETAIL)
-    @BindPermission(name = OperationCons.LABEL_DETAIL, code = OperationCons.CODE_DETAIL)
     @GetMapping("/{id}")
     public JsonResult getViewObjectMapping(@PathVariable("id")Long id) throws Exception{
         return super.getViewObject(id, RoleDetailVO.class);
@@ -67,8 +62,6 @@ public class RoleController extends BaseCustomCrudRestController<Role> {
      * @return JsonResult
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_CREATE)
-    @BindPermission(name = OperationCons.LABEL_CREATE, code = OperationCons.CODE_CREATE)
     @PostMapping("/")
     public JsonResult createEntityMapping(@Valid @RequestBody Role entity) throws Exception {
         return super.createEntity(entity);
@@ -81,8 +74,6 @@ public class RoleController extends BaseCustomCrudRestController<Role> {
      * @return JsonResult
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_UPDATE)
-    @BindPermission(name = OperationCons.LABEL_UPDATE, code = OperationCons.CODE_UPDATE)
     @PutMapping("/{id}")
     public JsonResult updateEntityMapping(@PathVariable("id")Long id, @Valid @RequestBody Role entity) throws Exception {
         return super.updateEntity(id, entity);
@@ -95,8 +86,6 @@ public class RoleController extends BaseCustomCrudRestController<Role> {
      * @return
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_DELETE)
-    @BindPermission(name = OperationCons.LABEL_DELETE, code = OperationCons.CODE_DELETE)
     @DeleteMapping("/{id}")
     public JsonResult deleteEntityMapping(@PathVariable("id")Long id) throws Exception {
         return super.deleteEntity(id);

@@ -1,15 +1,13 @@
 package com.twwg.gateway.module.auth.controller;
 
-import com.diboot.core.vo.*;
-import com.diboot.iam.annotation.BindPermission;
-import com.diboot.iam.annotation.Log;
-import com.diboot.iam.annotation.OperationCons;
-import com.example.demo.controller.BaseCustomCrudRestController;
-import com.example.demo.dto.auth.UserDTO;
-import com.example.demo.entity.auth.User;
-import com.example.demo.service.auth.UserService;
-import com.example.demo.vo.auth.UserDetailVO;
-import com.example.demo.vo.auth.UserListVO;
+import com.diboot.core.vo.JsonResult;
+import com.diboot.core.vo.Pagination;
+import com.twwg.gateway.base.BaseCustomCrudRestController;
+import com.twwg.gateway.module.auth.dto.UserDTO;
+import com.twwg.gateway.module.auth.entity.User;
+import com.twwg.gateway.module.auth.service.UserService;
+import com.twwg.gateway.module.auth.vo.UserDetailVO;
+import com.twwg.gateway.module.auth.vo.UserListVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +24,6 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/auth/user")
-@BindPermission(name = "账户", code="AuthUser")
 @Slf4j
 public class UserController extends BaseCustomCrudRestController<User> {
     @Autowired
@@ -41,8 +38,6 @@ public class UserController extends BaseCustomCrudRestController<User> {
      * @return
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_LIST)
-    @BindPermission(name = OperationCons.LABEL_LIST, code = OperationCons.CODE_LIST)
     @GetMapping("/list")
     public JsonResult getViewObjectListMapping(UserDTO queryDto, Pagination pagination) throws Exception{
     		return super.getViewObjectList(queryDto, pagination, UserListVO.class);
@@ -55,8 +50,6 @@ public class UserController extends BaseCustomCrudRestController<User> {
      * @return
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_DETAIL)
-    @BindPermission(name = OperationCons.LABEL_DETAIL, code = OperationCons.CODE_DETAIL)
     @GetMapping("/{id}")
     public JsonResult getViewObjectMapping(@PathVariable("id")Long id) throws Exception{
         return super.getViewObject(id, UserDetailVO.class);
@@ -69,8 +62,6 @@ public class UserController extends BaseCustomCrudRestController<User> {
      * @return JsonResult
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_CREATE)
-    @BindPermission(name = OperationCons.LABEL_CREATE, code = OperationCons.CODE_CREATE)
     @PostMapping("/")
     public JsonResult createEntityMapping(@Valid @RequestBody User entity) throws Exception {
         return super.createEntity(entity);
@@ -83,8 +74,6 @@ public class UserController extends BaseCustomCrudRestController<User> {
      * @return JsonResult
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_UPDATE)
-    @BindPermission(name = OperationCons.LABEL_UPDATE, code = OperationCons.CODE_UPDATE)
     @PutMapping("/{id}")
     public JsonResult updateEntityMapping(@PathVariable("id")Long id, @Valid @RequestBody User entity) throws Exception {
         return super.updateEntity(id, entity);
@@ -97,8 +86,6 @@ public class UserController extends BaseCustomCrudRestController<User> {
      * @return
      * @throws Exception
      */
-    @Log(operation = OperationCons.LABEL_DELETE)
-    @BindPermission(name = OperationCons.LABEL_DELETE, code = OperationCons.CODE_DELETE)
     @DeleteMapping("/{id}")
     public JsonResult deleteEntityMapping(@PathVariable("id")Long id) throws Exception {
         return super.deleteEntity(id);
