@@ -26,6 +26,9 @@ public class StpInterfaceImpl implements StpInterface {
      */
     @Override
     public List<String> getPermissionList(Object loginId, String loginType) {
+        if (loginId instanceof String) {
+            loginId = Long.parseLong((String) loginId);
+        }
         return permissionService.getPermissionUriByUserId((Long) loginId);
     }
 
@@ -34,6 +37,9 @@ public class StpInterfaceImpl implements StpInterface {
      */
     @Override
     public List<String> getRoleList(Object loginId, String loginType) {
+        if (loginId instanceof String) {
+            loginId = Long.parseLong((String) loginId);
+        }
         return roleService.getRoleNameListByUserId((Long) loginId);
     }
 

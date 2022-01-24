@@ -1,6 +1,5 @@
 package com.twwg.gateway.module.auth.controller;
 
-import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.captcha.CaptchaUtil;
@@ -9,6 +8,7 @@ import cn.hutool.core.lang.UUID;
 import cn.hutool.crypto.digest.BCrypt;
 import com.twwg.gateway.module.auth.entity.User;
 import com.twwg.gateway.module.auth.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DefaultDataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -21,9 +21,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 用户控制器
@@ -32,39 +29,21 @@ import java.util.Map;
  * @date 2022/01/24
  */
 @RestController
-@RequestMapping("/auth/")
+@RequestMapping("/login/")
+@Slf4j
 public class LoginController {
 
     @Autowired
     UserService userService;
 
-    TimedCache<String, String> captchaCache = new TimedCache<>(5000L);
-
-
-    @RequestMapping("login/doLogin")
-    public String doLogin(String username, String password, String captchaToken, String captchaCode) {
-
-        String captcha = captchaCache.get(captchaToken);
-        if (captchaCode == null || !captchaToken.equals(captcha)) {
-            captchaCache.remove(captchaCode);
-            return "验证码校验失败";
-        }
-
-        User user = userService.getByUsername(username);
-        //BCrypt
-        if (user == null|| !BCrypt.checkpw(password,user.getPasswd())) {
-            return "登录失败";
-        }
-
-        StpUtil.login(user.getId());
-        return "登录成功";
-    }
+    TimedCache<String, String> captchaCache = new TimedCache<>(30000L);
 
     /**
      * 获取验证码
+     * http://localhost:8888/auth/login/captcha
      */
-    @GetMapping("login/captcha")
-    public Mono<Void> captcha(ServerHttpResponse response) throws Exception {
+    @GetMapping("captcha")
+    public Mono<Void> captcha(ServerHttpResponse response) {
         CircleCaptcha circleCaptcha = CaptchaUtil.createCircleCaptcha(250, 120, 4, 4);
         String code = circleCaptcha.getCode();
         String uuid = UUID.fastUUID().toString(true);
@@ -78,7 +57,35 @@ public class LoginController {
             fluxSink.complete();
         });
         response.getHeaders().set("captchaToken", uuid);
+        log.info("验证码#{}，token#{}", code, uuid);
         return response.writeWith(flux);
+    }
+
+    /**
+     * 登录
+     * <p>
+     * http://localhost:8888/auth/login/doLogin?username=admin&password=admin&captchaToken=XXXXXXXXXXXX&captchaCode=XXXX
+     *
+     * @param username     用户名
+     * @param password     密码
+     * @param captchaToken 验证码牌
+     * @param captchaCode  验证码代码
+     * @return {@link String}
+     */
+    @RequestMapping("/doLogin")
+    public String doLogin(String username, String password, String captchaToken, String captchaCode) {
+        String captcha = captchaCache.get(captchaToken);
+        captchaCache.remove(captchaCode);
+        if (captchaCode == null || !captchaCode.equals(captcha)) {
+            return "验证码校验失败";
+        }
+        User user = userService.getByUsername(username);
+        //BCrypt
+        if (user == null || !BCrypt.checkpw(password, user.getPasswd())) {
+            return "登录失败";
+        }
+        StpUtil.login(user.getId());
+        return "登录成功";
     }
 
     /**
@@ -86,46 +93,9 @@ public class LoginController {
      *
      * @return {@link String}
      */
-    @RequestMapping("login/isLogin")
+    @RequestMapping("isLogin")
     public String isLogin() {
         return "当前会话是否登录：" + StpUtil.isLogin();
-    }
-
-    /**
-     * 获取角色列表
-     *
-     * @return {@link List}<{@link String}>
-     */
-    @RequestMapping("getRoleList")
-    public List<String> getRoleList() {
-        return StpUtil.getRoleList();
-    }
-
-    /**
-     * 获得权限列表
-     *
-     * @return {@link List}<{@link String}>
-     */
-    @RequestMapping("getPermissionList")
-    public List<String> getPermissionList() {
-        return StpUtil.getPermissionList();
-    }
-
-    /**
-     * 有网址访问权
-     *
-     * @param urls url 网址数组
-     * @return {@link Map}<{@link String}, {@link Boolean}> url1:true,url2:false
-     */
-    @RequestMapping("hasUrlPermission")
-    public Map<String, Boolean> hasUrlPermission(String[] urls) {
-        HashMap<String, Boolean> result = new HashMap<>();
-        List<String> permissionList = StpUtil.getPermissionList();
-        for (String url : urls) {
-            boolean match = SaRouter.isMatch(permissionList, url);
-            result.put(url, match);
-        }
-        return result;
     }
 
     /**

@@ -19,7 +19,12 @@ spring:
               - PUT
               - DELETE
               - PATCH
+
+  main:
+    web-application-type: reactive
+
 sa-token:
   # jwt秘钥
   jwt-secret-key: twwgasdask412ksafn13
+
 

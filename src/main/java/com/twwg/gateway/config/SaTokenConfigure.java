@@ -45,7 +45,7 @@ public class SaTokenConfigure {
                 .addInclude("/**")
                 // 指定 [放行路由]
                 .addExclude("/favicon.ico")
-                .addExclude("/auth/login/**")
+                .addExclude("/login/**")
                 // 指定[认证函数]: 每次请求执行
                 .setAuth(obj -> {
                     if (!hasPermission()) {
@@ -66,6 +66,10 @@ public class SaTokenConfigure {
      */
     private boolean hasPermission() {
         StpUtil.checkLogin();
+        boolean matchHasUrlPermission = SaRouter.isMatchCurrURI("/authCheck/**");
+        if (matchHasUrlPermission){
+            return true;
+        }
         boolean admin = StpUtil.hasRole("admin");
         if (admin) {
             return true;
@@ -74,9 +78,14 @@ public class SaTokenConfigure {
         String method = SaHolder.getRequest().getMethod();
         permissionList = permissionList.stream()
                 //过滤method
-                .filter(t -> t.startsWith(method))
+                .filter(t -> t.startsWith(method)||t.startsWith("*"))
                 //截取url部分  POST:/auth/isLogin -> /auth/isLogin
-                .map(t -> t.substring(method.length()+1))
+                .map(t -> {
+                    if (t.startsWith("*")){
+                        return t.substring(2);
+                    }
+                    return t.substring(method.length() + 1);
+                })
                 .collect(Collectors.toList());
         return SaRouter.isMatchCurrURI(permissionList);
     }
