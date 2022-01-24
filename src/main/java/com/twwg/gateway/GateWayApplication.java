@@ -1,5 +1,6 @@
 package com.twwg.gateway;
 
+import cn.dev33.satoken.SaManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -15,6 +16,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class GateWayApplication {
     public static void main(String[] args) {
         SpringApplication.run(GateWayApplication.class, args);
+        System.out.println("启动成功：Sa-Token配置如下：" + SaManager.getConfig());
     }
-
 }
