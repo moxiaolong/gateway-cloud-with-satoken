@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.twwg.gateway.base.BaseCustomEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,6 +49,7 @@ public class User extends BaseCustomEntity {
      */
     @Length(max=100, message="密码长度应小于100")
     @TableField()
+    @JsonIgnore
     private String passwd;
 
 } 

@@ -8,13 +8,14 @@ import com.diboot.core.vo.Pagination;
 import com.twwg.gateway.module.auth.entity.Permission;
 import com.twwg.gateway.module.auth.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Date;
 
 /**
- *  权限管理 用户管理
+ * 权限管理 用户管理
  *
  * @author dragon
  * @date 2022/01/24
@@ -33,11 +34,12 @@ public class PermissionManagerController {
      */
     @PostMapping
     public JsonResult add(@Valid @RequestBody Permission permission) {
+        Assert.isTrue(permission.getUri().contains(":/"), "请按照格式填写uri，例：POST:/addUser");
         permission.setCreateBy(StpUtil.getLoginIdAsLong());
         QueryWrapper<Permission> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(Permission::getUri, permission.getUri());
         if (permissionService.exists(wrapper)) {
-            return JsonResult.FAIL_EXCEPTION("角色已存在");
+            return JsonResult.FAIL_EXCEPTION("uri已存在");
         }
         permissionService.createEntity(permission);
         return JsonResult.OK("添加成功");
@@ -63,6 +65,12 @@ public class PermissionManagerController {
      */
     @PutMapping("")
     public JsonResult update(@Valid @RequestBody Permission permission) {
+        Assert.isTrue(permission.getUri().contains(":/"), "请按照格式填写uri，例：POST:/addUser");
+        QueryWrapper<Permission> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(Permission::getUri, permission.getUri()).ne(Permission::getId, permission.getId());
+        if (permissionService.exists(wrapper)) {
+            return JsonResult.FAIL_EXCEPTION("uri已存在");
+        }
         permission.setUpdateTime(new Date());
         return JsonResult.OK(permissionService.updateEntity(permission));
     }

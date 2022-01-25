@@ -38,7 +38,7 @@ public class RoleManagerController {
         QueryWrapper<Role> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(Role::getRoleName, role.getRoleName());
         if (roleService.exists(wrapper)) {
-            return JsonResult.FAIL_EXCEPTION("角色已存在");
+            return JsonResult.FAIL_EXCEPTION("角色名已存在");
         }
         roleService.createEntity(role);
         return JsonResult.OK("添加成功");
@@ -65,6 +65,13 @@ public class RoleManagerController {
     @PutMapping("")
     public JsonResult update(@Valid @RequestBody Role role) {
         role.setUpdateTime(new Date());
+
+        QueryWrapper<Role> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(Role::getRoleName, role.getRoleName()).ne(Role::getId, role.getId());
+        if (roleService.exists(wrapper)) {
+            return JsonResult.FAIL_EXCEPTION("角色名已存在");
+        }
+
         return JsonResult.OK(roleService.updateEntity(role));
     }
 

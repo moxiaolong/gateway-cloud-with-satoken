@@ -6,6 +6,7 @@ import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.CircleCaptcha;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.crypto.digest.BCrypt;
+import com.diboot.core.vo.JsonResult;
 import com.twwg.gateway.module.auth.entity.User;
 import com.twwg.gateway.module.auth.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -23,7 +25,7 @@ import reactor.core.publisher.Mono;
 import java.nio.ByteBuffer;
 
 /**
- * 用户控制器
+ * 登录控制器
  *
  * @author dragon
  * @date 2022/01/24
@@ -72,20 +74,20 @@ public class LoginController {
      * @param captchaCode  验证码代码
      * @return {@link String}
      */
-    @RequestMapping("/doLogin")
-    public String doLogin(String username, String password, String captchaToken, String captchaCode) {
+    @PostMapping("/doLogin")
+    public JsonResult doLogin(String username, String password, String captchaToken, String captchaCode) {
         String captcha = captchaCache.get(captchaToken);
         captchaCache.remove(captchaCode);
         if (captchaCode == null || !captchaCode.equals(captcha)) {
-            return "验证码校验失败";
+            return JsonResult.FAIL_EXCEPTION("验证码校验失败");
         }
         User user = userService.getByUsername(username);
         //BCrypt
         if (user == null || !BCrypt.checkpw(password, user.getPasswd())) {
-            return "登录失败";
+            return JsonResult.FAIL_EXCEPTION("登录失败");
         }
         StpUtil.login(user.getId());
-        return "登录成功";
+        return JsonResult.OK("登录成功");
     }
 
     /**
@@ -93,9 +95,9 @@ public class LoginController {
      *
      * @return {@link String}
      */
-    @RequestMapping("isLogin")
-    public String isLogin() {
-        return "当前会话是否登录：" + StpUtil.isLogin();
+    @GetMapping("isLogin")
+    public JsonResult isLogin() {
+        return JsonResult.OK(StpUtil.isLogin());
     }
 
     /**
@@ -103,10 +105,10 @@ public class LoginController {
      *
      * @return {@link String}
      */
-    @RequestMapping("logout")
-    public String logout() {
+    @GetMapping("logout")
+    public JsonResult logout() {
         StpUtil.logout();
-        return "注销成功";
+        return JsonResult.OK("注销成功");
     }
 
 }

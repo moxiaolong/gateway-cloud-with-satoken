@@ -6,7 +6,11 @@ import cn.dev33.satoken.reactor.filter.SaReactorFilter;
 import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpLogic;
 import cn.dev33.satoken.stp.StpUtil;
+import com.diboot.core.vo.JsonResult;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.server.ServerWebExchange;
@@ -29,6 +33,9 @@ public class SaTokenConfigure {
     public StpLogic getStpLogicJwt() {
         return new StpLogicJwtForStateless();
     }
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     /**
      * 注册 [Sa-Token全局过滤器]
@@ -55,7 +62,12 @@ public class SaTokenConfigure {
                 // 指定[异常处理函数]：每次[认证函数]发生异常时执行此函数
                 .setError(e -> {
                     log.info(e.getMessage());
-                    return e.getMessage();
+                    try {
+                        return objectMapper.writeValueAsString(JsonResult.FAIL_INVALID_TOKEN(e.getMessage()));
+                    } catch (JsonProcessingException ex) {
+                        ex.printStackTrace();
+                        return ex.getMessage();
+                    }
                 });
     }
 
@@ -67,7 +79,7 @@ public class SaTokenConfigure {
     private boolean hasPermission() {
         StpUtil.checkLogin();
         boolean matchHasUrlPermission = SaRouter.isMatchCurrURI("/authCheck/**");
-        if (matchHasUrlPermission){
+        if (matchHasUrlPermission) {
             return true;
         }
         boolean admin = StpUtil.hasRole("admin");
@@ -78,10 +90,10 @@ public class SaTokenConfigure {
         String method = SaHolder.getRequest().getMethod();
         permissionList = permissionList.stream()
                 //过滤method
-                .filter(t -> t.startsWith(method)||t.startsWith("*"))
+                .filter(t -> t.startsWith(method) || t.startsWith("*"))
                 //截取url部分  POST:/auth/isLogin -> /auth/isLogin
                 .map(t -> {
-                    if (t.startsWith("*")){
+                    if (t.startsWith("*")) {
                         return t.substring(2);
                     }
                     return t.substring(method.length() + 1);

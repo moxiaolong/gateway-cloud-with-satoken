@@ -49,6 +49,6 @@ public class Permission extends BaseCustomEntity {
      */
     @Length(max = 100, message = "描述长度应小于100")
     @TableField()
-    private String describe;
+    private String description;
 
 } 

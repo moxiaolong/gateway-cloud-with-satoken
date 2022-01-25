@@ -37,11 +37,13 @@ public class UserManagerController {
     public JsonResult add(@Valid @RequestBody User user) {
         user.setCreateBy(StpUtil.getLoginIdAsLong());
         user.setPasswd(BCrypt.hashpw(user.getPasswd()));
+
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(User::getUserName, user.getUserName());
         if (userService.exists(wrapper)) {
             return JsonResult.FAIL_EXCEPTION("用户名已存在");
         }
+
         userService.createEntity(user);
         return JsonResult.OK("添加成功");
     }
@@ -68,6 +70,13 @@ public class UserManagerController {
     public JsonResult update(@Valid @RequestBody User user) {
         user.setPasswd(BCrypt.hashpw(user.getPasswd()));
         user.setUpdateTime(new Date());
+
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(User::getUserName, user.getUserName()).ne(User::getId, user.getId());
+        if (userService.exists(wrapper)) {
+            return JsonResult.FAIL_EXCEPTION("用户名已存在");
+        }
+
         return JsonResult.OK(userService.updateEntity(user));
     }
 
