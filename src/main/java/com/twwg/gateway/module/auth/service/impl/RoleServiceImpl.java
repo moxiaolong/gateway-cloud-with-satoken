@@ -36,4 +36,6 @@ public class RoleServiceImpl extends BaseCustomServiceImpl<RoleMapper, Role> imp
         roleQueryWrapper.lambda().in(Role::getId, roleIds).select(Role::getRoleName);
         return this.getEntityList(roleQueryWrapper).stream().map(Role::getRoleName).collect(Collectors.toList());
     }
+
+
 }
