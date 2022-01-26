@@ -77,14 +77,14 @@ public class LoginController {
     @PostMapping("/doLogin")
     public JsonResult doLogin(String username, String password, String captchaToken, String captchaCode) {
         String captcha = captchaCache.get(captchaToken);
-        captchaCache.remove(captchaCode);
+        captchaCache.remove(captchaToken);
         if (captchaCode == null || !captchaCode.equals(captcha)) {
             return JsonResult.FAIL_EXCEPTION("验证码校验失败");
         }
         User user = userService.getByUsername(username);
         //BCrypt
         if (user == null || !BCrypt.checkpw(password, user.getPasswd())) {
-            return JsonResult.FAIL_EXCEPTION("登录失败");
+            return JsonResult.FAIL_EXCEPTION("登录失败，用户名或密码错误");
         }
         StpUtil.login(user.getId());
         return JsonResult.OK("登录成功");

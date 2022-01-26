@@ -42,7 +42,7 @@ public class UserRoleManagerController {
     public JsonResult addUserRole(@PathVariable("userId") Long userId, @PathVariable("roleId") Long roleId) {
         QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
         userRoleQueryWrapper.lambda().eq(UserRole::getAuthUserId, userId).eq(UserRole::getAuthRoleId, roleId);
-        UserRole userRole = userRoleService.getEntity(userRoleQueryWrapper);
+        UserRole userRole = userRoleService.getSingleEntity(userRoleQueryWrapper);
         if (userRole == null) {
             userRole = new UserRole();
             userRole.setAuthUserId(userId);
@@ -62,6 +62,6 @@ public class UserRoleManagerController {
     public JsonResult deleteUserRole(@PathVariable("userId") Long userId, @PathVariable("roleId") Long roleId) {
         QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
         userRoleQueryWrapper.lambda().eq(UserRole::getAuthUserId, userId).eq(UserRole::getAuthRoleId, roleId);
-        return JsonResult.OK(userRoleService.deleteEntity(userRoleQueryWrapper));
+        return JsonResult.OK(userRoleService.deleteEntities(userRoleQueryWrapper));
     }
 }

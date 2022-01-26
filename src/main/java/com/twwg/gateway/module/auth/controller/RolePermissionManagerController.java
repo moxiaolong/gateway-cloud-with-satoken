@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.diboot.core.vo.JsonResult;
 import com.twwg.gateway.module.auth.entity.RolePermission;
 import com.twwg.gateway.module.auth.service.RolePermissionService;
+import com.twwg.gateway.module.auth.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.*;
 public class RolePermissionManagerController {
     @Autowired
     RolePermissionService rolePermissionService;
+    @Autowired
+    RoleService roleService;
 
     /**
-     * 查询用户包含的权限ID列表
+     * 查询角色包含的权限ID列表
      *
      * @param roleId 角色id
      * @return {@link JsonResult}
@@ -42,7 +45,7 @@ public class RolePermissionManagerController {
     public JsonResult addUserRole(@PathVariable("roleId") Long roleId, @PathVariable("permissionId") Long permissionId) {
         QueryWrapper<RolePermission> userRoleQueryWrapper = new QueryWrapper<>();
         userRoleQueryWrapper.lambda().eq(RolePermission::getAuthRoleId, roleId).eq(RolePermission::getAuthPermissionId, permissionId);
-        RolePermission rolePermission = rolePermissionService.getEntity(userRoleQueryWrapper);
+        RolePermission rolePermission = rolePermissionService.getSingleEntity(userRoleQueryWrapper);
         if (rolePermission == null) {
             rolePermission = new RolePermission();
             rolePermission.setAuthRoleId(roleId);
@@ -63,6 +66,6 @@ public class RolePermissionManagerController {
     public JsonResult deleteUserRole(@PathVariable("roleId") Long roleId, @PathVariable("permissionId") Long permissionId) {
         QueryWrapper<RolePermission> userRoleQueryWrapper = new QueryWrapper<>();
         userRoleQueryWrapper.lambda().eq(RolePermission::getAuthRoleId, roleId).eq(RolePermission::getAuthPermissionId, permissionId);
-        return JsonResult.OK(rolePermissionService.deleteEntity(userRoleQueryWrapper));
+        return JsonResult.OK(rolePermissionService.deleteEntities(userRoleQueryWrapper));
     }
 }
