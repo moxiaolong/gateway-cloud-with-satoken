@@ -16,7 +16,6 @@ import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -42,7 +41,7 @@ public class LoginController {
 
     /**
      * 获取验证码
-     * http://localhost:8888/auth/login/captcha
+     * http://localhost:8888/login/captcha
      */
     @GetMapping("captcha")
     public Mono<Void> captcha(ServerHttpResponse response) {
@@ -66,7 +65,7 @@ public class LoginController {
     /**
      * 登录
      * <p>
-     * http://localhost:8888/auth/login/doLogin?username=admin&password=admin&captchaToken=XXXXXXXXXXXX&captchaCode=XXXX
+     * http://localhost:8888/login/doLogin?username=admin&password=admin&captchaToken=XXXXXXXXXXXX&captchaCode=XXXX
      *
      * @param username     用户名
      * @param password     密码
@@ -74,7 +73,7 @@ public class LoginController {
      * @param captchaCode  验证码代码
      * @return {@link String}
      */
-    @PostMapping("/doLogin")
+    @RequestMapping("/doLogin")
     public JsonResult doLogin(String username, String password, String captchaToken, String captchaCode) {
         String captcha = captchaCache.get(captchaToken);
         captchaCache.remove(captchaToken);
