@@ -9,6 +9,7 @@ spring:
           filters:
             #- StripPrefix=1 # 转发之前去掉几层路径
           url-expression: "'lb://'+serviceId"
+          lower-case-service-id: true
       globalcors:
         cors‐configurations:
           '[/**]': # 匹配所有请求
@@ -19,6 +20,7 @@ spring:
               - PUT
               - DELETE
               - PATCH
+            allowHeaders: "*"
 
   main:
     web-application-type: reactive
