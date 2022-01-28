@@ -1,5 +1,6 @@
 package com.twwg.gateway.fliter;
 
+import cn.dev33.satoken.router.SaRouter;
 import com.twwg.api.SecurityApiFeign;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,19 +60,9 @@ public class AuthFilter implements GlobalFilter, Ordered {
             if (token!=null&&!token.isEmpty()){
                 Set<String> permission = securityApiFeign.doGetAuthorizationInfo();
                 String method = request.getMethodValue();
-                permission = permission.stream()
-                        //过滤method
-                        .filter(t -> t.startsWith(method) || t.startsWith("*"))
-                        //截取url部分  POST:/auth/isLogin -> /auth/isLogin
-                        .map(t -> {
-                            if (t.startsWith("*")) {
-                                return t.substring(2);
-                            }
-                            return t.substring(method.length() + 1);
-                        })
-                        .collect(Collectors.toList());
-                return SaRouter.isMatchCurrURI(permissionList);
-
+                if (checkPermission(permission,method)) {
+                    return chain.filter(exchange);
+                }
             }
         }
 
@@ -84,5 +75,20 @@ public class AuthFilter implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return Ordered.LOWEST_PRECEDENCE;
+    }
+
+    private boolean checkPermission(Set<String> permission,String method){
+        List<String> permissionList = permission.stream()
+                //过滤method
+                .filter(t -> t.startsWith(method) || t.startsWith("*"))
+                //截取url部分  POST:/auth/isLogin -> /auth/isLogin
+                .map(t -> {
+                    if (t.startsWith("*")) {
+                        return t.substring(2);
+                    }
+                    return t.substring(method.length() + 1);
+                })
+                .collect(Collectors.toList());
+        return SaRouter.isMatchCurrURI(permissionList);
     }
 }
