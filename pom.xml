@@ -19,7 +19,11 @@
     </properties>
 
     <dependencies>
-
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-core</artifactId>
+            <version>1.28.0</version>
+        </dependency>
         <dependency>
             <groupId>com.twwg</groupId>
             <artifactId>micro-service-common</artifactId>
