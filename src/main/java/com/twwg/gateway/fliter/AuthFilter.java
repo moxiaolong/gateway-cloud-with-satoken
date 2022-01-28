@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 日志过滤器
@@ -57,7 +58,19 @@ public class AuthFilter implements GlobalFilter, Ordered {
             String token = tokens.get(0);
             if (token!=null&&!token.isEmpty()){
                 Set<String> permission = securityApiFeign.doGetAuthorizationInfo();
-
+                String method = request.getMethodValue();
+                permission = permission.stream()
+                        //过滤method
+                        .filter(t -> t.startsWith(method) || t.startsWith("*"))
+                        //截取url部分  POST:/auth/isLogin -> /auth/isLogin
+                        .map(t -> {
+                            if (t.startsWith("*")) {
+                                return t.substring(2);
+                            }
+                            return t.substring(method.length() + 1);
+                        })
+                        .collect(Collectors.toList());
+                return SaRouter.isMatchCurrURI(permissionList);
 
             }
         }

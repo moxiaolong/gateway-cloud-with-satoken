@@ -19,6 +19,7 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.twwg</groupId>
             <artifactId>micro-service-common</artifactId>
