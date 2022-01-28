@@ -35,11 +35,11 @@ public class AuthFilter implements GlobalFilter, Ordered {
     List<String> allowUri = new ArrayList<>();
 
     AuthFilter() {
-        allowUri.add("/security/captcha");
-        allowUri.add("/security/noCaptchaLogin");
-        allowUri.add("/security/login");
-        allowUri.add("/security/appLogin");
-        allowUri.add("/security/logout");
+        allowUri.add("/captcha");
+        allowUri.add("/noCaptchaLogin");
+        allowUri.add("/login");
+        allowUri.add("/appLogin");
+        allowUri.add("/logout");
     }
 
     @Override
