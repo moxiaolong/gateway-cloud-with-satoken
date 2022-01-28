@@ -13,6 +13,6 @@ spring:
           uri: lb://security
           predicates:
             - Path=/security/**
-          filters:
-            - StripPrefix=1
+#          filters:
+#            - StripPrefix=1
 

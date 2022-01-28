@@ -1,16 +1,16 @@
 package com.twwg.gateway.fliter;
 
 import cn.dev33.satoken.router.SaRouter;
-import com.twwg.api.SecurityApiFeign;
+import com.twwg.gateway.feign.SecurityApiFeign;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -31,15 +31,17 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     @Autowired
     SecurityApiFeign securityApiFeign;
+    @Autowired
+    private WebClient.Builder webClientBuilder;
 
     List<String> allowUri = new ArrayList<>();
 
     AuthFilter() {
-        allowUri.add("/captcha");
-        allowUri.add("/noCaptchaLogin");
-        allowUri.add("/login");
-        allowUri.add("/appLogin");
-        allowUri.add("/logout");
+        allowUri.add("/security/captcha");
+        allowUri.add("/security/noCaptchaLogin");
+        allowUri.add("/security/login");
+        allowUri.add("/security/appLogin");
+        allowUri.add("/security/logout");
     }
 
     @Override
@@ -55,21 +57,14 @@ public class AuthFilter implements GlobalFilter, Ordered {
             }
         }
         List<String> tokens = request.getHeaders().get("token");
-        if (tokens!=null&&tokens.size()>0){
+        if (tokens != null && tokens.size() > 0) {
             String token = tokens.get(0);
-            if (token!=null&&!token.isEmpty()){
-                Set<String> permission = securityApiFeign.doGetAuthorizationInfo();
-                String method = request.getMethodValue();
-                if (checkPermission(permission,method)) {
-                    return chain.filter(exchange);
-                }
+            if (token != null && !token.isEmpty()) {
+               return webClientBuilder.build().get().uri("lb://security").header("token",
+                        token).retrieve().bodyToMono(Set.class).doOnSuccess(set -> {}).then();
             }
         }
-
-        DataBuffer bodyDataBuffer = response.bufferFactory().wrap("无权限".getBytes());
-        response.getHeaders().add("Content-Type", "text/plain;charset=UTF-8");
-        return response.writeWith(Mono.just(bodyDataBuffer));
-
+        return chain.filter(exchange);
     }
 
     @Override
@@ -77,7 +72,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         return Ordered.LOWEST_PRECEDENCE;
     }
 
-    private boolean checkPermission(Set<String> permission,String method){
+    private boolean checkPermission(Set<String> permission, String method) {
         List<String> permissionList = permission.stream()
                 //过滤method
                 .filter(t -> t.startsWith(method) || t.startsWith("*"))
@@ -87,8 +82,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
                         return t.substring(2);
                     }
                     return t.substring(method.length() + 1);
-                })
-                .collect(Collectors.toList());
+                }).collect(Collectors.toList());
         return SaRouter.isMatchCurrURI(permissionList);
     }
 }

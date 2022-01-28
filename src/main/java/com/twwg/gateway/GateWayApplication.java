@@ -13,7 +13,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients("com.twwg.api")
+@EnableFeignClients("com.twwg.*.feign")
 public class GateWayApplication {
     public static void main(String[] args) {
         SpringApplication.run(GateWayApplication.class, args);
