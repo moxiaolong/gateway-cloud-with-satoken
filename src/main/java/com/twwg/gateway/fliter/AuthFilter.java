@@ -1,12 +1,12 @@
 package com.twwg.gateway.fliter;
 
-import cn.dev33.satoken.router.SaRouter;
 import com.twwg.gateway.feign.SecurityApiFeign;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -50,9 +51,9 @@ public class AuthFilter implements GlobalFilter, Ordered {
         ServerHttpResponse response = exchange.getResponse();
         String path = exchange.getRequest().getURI().getPath();
 
-        //假装如果没有权限 就响应无权限 http://localhost:8888/api/your-service-name/user/ban
+        //放行
         for (String aAllowUri : allowUri) {
-            if (path.startsWith(aAllowUri)) {
+            if (path.equals(aAllowUri)) {
                 return chain.filter(exchange);
             }
         }
@@ -60,11 +61,19 @@ public class AuthFilter implements GlobalFilter, Ordered {
         if (tokens != null && tokens.size() > 0) {
             String token = tokens.get(0);
             if (token != null && !token.isEmpty()) {
-               return webClientBuilder.build().get().uri("lb://security").header("token",
-                        token).retrieve().bodyToMono(Set.class).doOnSuccess(set -> {}).then();
+                return webClientBuilder.build().post().uri("lb://security/security/security/doGetAuthorizationInfo").header("token", token).retrieve().bodyToMono(Set.class).flatMap(authSet -> {
+                    if (checkPermission(authSet, path, request.getMethodValue())) {
+                        return chain.filter(exchange);
+                    }
+                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    return exchange.getResponse().setComplete();
+
+                });
             }
         }
-        return chain.filter(exchange);
+
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        return exchange.getResponse().setComplete();
     }
 
     @Override
@@ -72,7 +81,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         return Ordered.LOWEST_PRECEDENCE;
     }
 
-    private boolean checkPermission(Set<String> permission, String method) {
+    private boolean checkPermission(Set<String> permission, String path, String method) {
         List<String> permissionList = permission.stream()
                 //过滤method
                 .filter(t -> t.startsWith(method) || t.startsWith("*"))
@@ -83,6 +92,12 @@ public class AuthFilter implements GlobalFilter, Ordered {
                     }
                     return t.substring(method.length() + 1);
                 }).collect(Collectors.toList());
-        return SaRouter.isMatchCurrURI(permissionList);
+
+        for (String aPermission : permissionList) {
+            if (Pattern.matches(aPermission, path)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
