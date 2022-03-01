@@ -3,16 +3,16 @@ spring:
     active: local #激活环境，请勿更改，如需改变环境请通过启动参数传入
   cloud:
     gateway:
-#      discovery:
-#        locator:
-#          enabled: true
-#          filters:
-#          url-expression: "'lb://'+serviceId"
+      #      discovery:
+      #        locator:
+      #          enabled: true
+      #          filters:
+      #          url-expression: "'lb://'+serviceId"
       routes:
-        - id: security
-          uri: lb://security
+        - id: api
+          uri: lb://iot-cloud-aggregate
           predicates:
-            - Path=/security/**
-#          filters:
-#            - StripPrefix=1
+            - Path=/api/**
+          filters:
+            - StripPrefix=1
 
